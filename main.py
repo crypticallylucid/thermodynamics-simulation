@@ -25,12 +25,19 @@ def main():
 
   window.update()
   balls = []
+  used = [(0, 0)]
 
   # create 50 particles
-  for i in range(50):
+  while len(balls) < 50:
+    xpos = random.randint(1, canvas.winfo_width()-1)
+    ypos = random.randint(1, canvas.winfo_height()-1)
     xvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
     yvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
-    balls.append(Ball(canvas, random.randint(1, canvas.winfo_width()-1), random.randint(1, canvas.winfo_height()-1), 10, xvel, yvel, "green"))
+    for pos in used:
+      if abs(pos[0]-xpos) > 10 and abs(pos[1]-ypos) > 10:
+        balls.append(Ball(canvas, xpos, ypos, 10, xvel, yvel, "green"))
+        used.append((xpos, ypos))
+        break
 
   main_loop(window, balls, temp_label1, temp_label2)
   window.mainloop()
