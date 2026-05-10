@@ -11,8 +11,8 @@ def main():
   window.rowconfigure(0, weight=1)
 
   assume_label1 = Label(window, text="Assume 1px/frame = 255m/s", font=("Arial", 16, "bold"), bg="lightgray")
-  assume_label1.pack(fill="x")
-  assume_label2 = Label(window, text="Assume all molecules are hydrogen", font=("Arial", 16, "bold"), bg="lightgray")
+  assume_label1.pack(fill="x",)
+  assume_label2 = Label(window, text="Assume all molecules are nitrogen", font=("Arial", 16, "bold"), bg="lightgray")
   assume_label2.pack(fill="x")
   temp = 0
   temp_label1 = Label(window, text=f"Temperature: {temp} K", font=("Arial", 16, "bold"), bg="lightgray")
@@ -20,44 +20,66 @@ def main():
   temp_label2 = Label(window, text=f"Temperature: {temp} C", font=("Arial", 16, "bold"), bg="lightgray")
   temp_label2.pack(fill="x")
 
-  canvas = Canvas(window, bg="white")
-  canvas.pack(fill="both", expand=True)
+  canvas = Canvas(window, bg="white", width=400, height=400)
+  canvas.pack()
 
   window.update()
   balls = []
 
+  # create 50 particles
+  for i in range(50):
+    xvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
+    yvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
+    balls.append(Ball(canvas, random.randint(1, canvas.winfo_width()-1), random.randint(1, canvas.winfo_height()-1), 10, xvel, yvel, "green"))
 
-  for i in range(5):
-    balls.append(Ball(canvas, random.randint(100, 400), random.randint(100, 400), 20, random.uniform(1, 1.5), random.uniform(1, 1.5), "green"))
+  main_loop(window, balls, temp_label1, temp_label2)
+  window.mainloop()
 
-  while True:
-    print("test")
-    update(canvas, balls, temp_label1, temp_label2)
-    window.update()
-    time.sleep(0.01)
+def main_loop(window, balls, temp_label1, temp_label2):
+  update(balls, temp_label1, temp_label2)
+  window.update()
+  window.after(10, main_loop, window, balls, temp_label1, temp_label2)
 
 def isColliding(ball1, ball2):
-  coords1 = ball1.canvas.coords(ball1.image)
-  coords2 = ball2.canvas.coords(ball2.image)
+  x1, y1 =  ball1.x, ball1.y
+  x2, y2 = ball2.x, ball2.y
 
-  x1, y1 = (coords1[0] + coords1[2])/2, (coords1[1] + coords1[3])/2
-  x2, y2 = (coords2[0] + coords2[2])/2, (coords2[1] + coords2[3])/2
+  dist = (x2-x1)**2 + (y2-y1)**2
+  
+  if dist == 0: return
 
-  dist = ((x2-x1)**2 + (y2-y1)**2)**0.5
-  dist+=0.01
+  if dist <= (ball1.dia/2 + ball2.dia/2)**2:
+    dist = math.sqrt(dist)
+    dvx = ball1.xvel - ball2.xvel
+    dvy = ball1.yvel - ball2.yvel
+    dx = x2 - x1
+    dy = y2 - y1
 
-  if dist <= (ball1.dia/2 + ball2.dia/2):
-    # TODO: MAKE REAL VELOCITIES LMAO
-    ball1.xvel, ball2.xvel = ball2.xvel, ball1.xvel
-    ball1.yvel, ball2.yvel = ball2.yvel, ball1.yvel
+    dot_product = (dvx * dx) + (dvy * dy)
+    scalar = dot_product / (dist**2)
+    
+    ball1.xvel -= scalar * dx
+    ball1.yvel -= scalar * dy
+    ball2.xvel += scalar * dx
+    ball2.yvel += scalar * dy
 
-    overlap = (ball1.dia/2 + ball2.dia/2) - dist
-    ball1.canvas.move(ball1.image, -overlap*(x2-x1)/dist, -overlap*(y2-y1)/dist)
-    ball2.canvas.move(ball2.image, overlap*(x2-x1)/dist, overlap*(y2-y1)/dist)
+    if (dot_product > 0):
+      overlap = (ball1.dia/2 + ball2.dia/2) - dist
+      movex = overlap * dx/(2*dist)
+      movey = overlap * dy/(2*dist)
 
-def update(canvas, balls, temp_label1, temp_label2):
-  temp_label1.config(text=f"Temperature: {calcTemp(balls)} K")
-  temp_label2.config(text=f"Temperature: {calcTemp(balls)-273.15} C")
+      ball1.canvas.move(ball1.image, movex, movey)
+      ball2.canvas.move(ball2.image, -movex, -movey)
+
+      ball1.x -= movex
+      ball1.y -= movey
+      ball2.x += movex
+      ball2.y += movey
+
+
+def update(balls, temp_label1, temp_label2):
+  temp_label1.config(text=f"Temperature: {round(calcTemp(balls), 3)} K")
+  temp_label2.config(text=f"Temperature: {round(calcTemp(balls)-273.15, 3)} C")
   for i, ball in enumerate(balls):
     ball.move()
     for other in balls[i+1:]:
@@ -67,7 +89,7 @@ def calcTemp(balls):
     if not balls: return 0
     
     K_BOLTZMANN = 1.380649e-23
-    MASS_NITROGEN = 4.65e-26  # kg
+    MASS_NITROGEN = 4.65e-26
     
     MPS_PER_PIXEL = 255.0 
     

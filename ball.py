@@ -6,19 +6,28 @@ class Ball:
     self.dia = dia
     self.xvel = xvel
     self.yvel = yvel
+    self.x = x
+    self.y = y
 
   def move(self):
-    coords = self.canvas.coords(self.image)
-    if (coords[2] >= self.canvas.winfo_width() or coords[0]<0):
-      self.xvel = -self.xvel
-    if (coords[3] >= self.canvas.winfo_height() or coords[1]<0):
-      self.yvel = -self.yvel
-    if (coords[0] < 0):
-      self.canvas.move(self.image, -coords[0], 0)
-    if (coords[1] < 0):
-      self.canvas.move(self.image, 0, -coords[1])
-    if (coords[2] > self.canvas.winfo_width()):
-      self.canvas.move(self.image, self.canvas.winfo_width()-coords[2], 0)
-    if (coords[3] > self.canvas.winfo_height()):
-      self.canvas.move(self.image, 0, self.canvas.winfo_height()-coords[3])
-    self.canvas.move(self.image, self.xvel, self.yvel)
+    self.x += self.xvel
+    self.y += self.yvel
+
+    w = self.canvas.winfo_width()
+    h = self.canvas.winfo_height()
+
+    if self.x <= 0:
+        self.x = 0
+        self.xvel *= -1
+    elif self.x + self.dia >= w:
+        self.x = w - self.dia
+        self.xvel *= -1
+
+    if self.y <= 0:
+        self.y = 0
+        self.yvel *= -1
+    elif self.y + self.dia >= h:
+        self.y = h - self.dia
+        self.yvel *= -1
+
+    self.canvas.coords(self.image, self.x, self.y, self.x + self.dia, self.y + self.dia)
