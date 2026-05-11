@@ -31,8 +31,8 @@ def main():
   while len(balls) < 50:
     xpos = random.randint(1, canvas.winfo_width()-1)
     ypos = random.randint(1, canvas.winfo_height()-1)
-    xvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
-    yvel = random.choice([random.uniform(1, 1.5), random.uniform(-1.5, -1)])
+    xvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
+    yvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
     for pos in used:
       if abs(pos[0]-xpos) > 10 and abs(pos[1]-ypos) > 10:
         balls.append(Ball(canvas, xpos, ypos, 10, xvel, yvel, "green"))
@@ -71,7 +71,7 @@ def isColliding(ball1, ball2):
     ball2.yvel += scalar * dy
 
     if (dot_product > 0):
-      overlap = (ball1.dia/2 + ball2.dia/2) - dist
+      overlap = (ball1.dia/2 + ball2.dia/2) - dist + 1
       movex = overlap * dx/(2*dist)
       movey = overlap * dy/(2*dist)
 
