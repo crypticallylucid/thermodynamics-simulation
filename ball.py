@@ -17,17 +17,17 @@ class Ball:
     h = self.canvas.winfo_height()
 
     if self.x <= 0:
-        self.x = 0
+        self.x = 0.1
         self.xvel *= -1
     elif self.x + self.dia >= w:
-        self.x = w - self.dia
+        self.x = w - self.dia - 0.1
         self.xvel *= -1
 
     if self.y <= 0:
-        self.y = 0
+        self.y = 0.1
         self.yvel *= -1
     elif self.y + self.dia >= h:
-        self.y = h - self.dia
+        self.y = h - self.dia - 0.1
         self.yvel *= -1
 
     self.canvas.coords(self.image, self.x, self.y, self.x + self.dia, self.y + self.dia)
