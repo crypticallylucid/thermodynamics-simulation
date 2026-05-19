@@ -6,20 +6,28 @@ class Piston:
         self.y = y
         self.width = width
         self.height = height
-        piston = canvas.create_rectangle(x, y, x + width, y + height, fill=color, tags="drag")
+        self.piston = canvas.create_rectangle(x, y, x + width, y + height, fill=color)
+        self.barrier = y + height
     
-    def up(event):
+    def up(self, event):
+        print("Up arrow pressed!")
         if (self.y < 10):
-            self.canvas.move(piston, 0, -self.y)
+            self.canvas.move(self.piston, 0, -self.y)
             self.y = 0
+            self.barrier = self.height
         else:
-            self.canvas.move(piston, 0, -10)
+            self.canvas.move(self.piston, 0, -10)
             self.y -= 10
+            self.barrier -= 10
+        print(self.barrier)
         
-    def down(event):
+    def down(self, event):
         if (self.y > 190):
-            self.canvas.move(piston, 0, 200-self.y)
+            self.canvas.move(self.piston, 0, 200-self.y)
             self.y = 200
+            self.barrier = self.y + self.height
         else:
-            self.canvas.move(piston, 0, 10)
+            self.canvas.move(self.piston, 0, 10)
             self.y += 10
+            self.barrier += 10
+        print(self.barrier)

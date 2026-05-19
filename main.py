@@ -35,8 +35,10 @@ def main():
   piston = Piston(canvas, 0, 0, 400, 20, "blue")
   canvas.bind("<Up>", piston.up)
   canvas.bind("<Down>", piston.down)
-  global top_barrier
-  top_barrier = piston.y + piston.height
+  canvas.focus_set()
+
+  global volume
+  volume = canvas.width * piston.barrier / 160000
 
   window.update()
   global balls
@@ -60,8 +62,6 @@ def main():
 
 def main_loop():
   update(balls, temp_label1, temp_label2)
-  top_barrier = piston.x + piston.height
-  window.update()
   window.after(10, main_loop)
 
 def isColliding(ball1, ball2):
@@ -102,14 +102,14 @@ def isColliding(ball1, ball2):
 
 
 def update(balls, temp_label1, temp_label2):
-  temp_label1.config(text=f"Temperature: {round(calcTemp(balls), 3)} K")
-  temp_label2.config(text=f"Temperature: {round(calcTemp(balls)-273.15, 3)} C")
+  temp_label1.config(text=f"Temperature: {round(calcTempPres(balls), 3)} K")
+  temp_label2.config(text=f"Temperature: {round(calcTempPres(balls)-273.15, 3)} C")
   for i, ball in enumerate(balls):
-    ball.move(top_barrier)
+    ball.move(piston.barrier)
     for other in balls[i+1:]:
       isColliding(ball, other)
 
-def calcTemp(balls):
+def calcTempPres(balls):
     if not balls: return 0
     
     K_BOLTZMANN = 1.380649e-23
