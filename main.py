@@ -2,6 +2,7 @@ import math
 from tkinter import *
 from tkinter import ttk
 from ball import *
+from piston import *
 import random
 import time
 
@@ -30,12 +31,12 @@ def main():
   canvas = Canvas(window, bg="white", width=400, height=400)
   canvas.pack()
 
-  global piston 
-  piston = canvas.create_rectangle(0,0,400,50,fill="blue")
+  global piston
+  piston = Piston(canvas, 0, 0, 400, 20, "blue")
+  canvas.bind("<Up>", piston.up)
+  canvas.bind("<Down>", piston.down)
   global top_barrier
-  top_barrier = canvas.coords(piston)[3]
-  canvas.tag_bind(piston, "<Button-1>", drag)
-  canvas.tag_bind(piston, "<B1-Motion>", drag_motion)
+  top_barrier = piston.y + piston.height
 
   window.update()
   global balls
@@ -59,7 +60,7 @@ def main():
 
 def main_loop():
   update(balls, temp_label1, temp_label2)
-  top_barrier = canvas.coords(piston)[3]
+  top_barrier = piston.x + piston.height
   window.update()
   window.after(10, main_loop)
 
@@ -127,15 +128,4 @@ def calcTemp(balls):
     temperature = (MASS_NITROGEN * mean_v_sq) / (2 * K_BOLTZMANN)
     
     return temperature
-
-def drag(event):
-    widget = event.widget
-    widget._drag_start_x = event.x
-    widget._drag_start_y = event.y
-
-def drag_motion(event):
-    widget = event.widget
-    x = widget.winfo_x() - widget._drag_start_x + event.x
-    y = widget.winfo_y() - widget._drag_start_y + event.y
-    widget.place(x=x, y=y)
 main()
