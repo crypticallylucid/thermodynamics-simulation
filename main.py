@@ -20,12 +20,16 @@ def main():
   assume_label2.pack(fill="x")
 
   temp = 0
+  volume = 0
   global temp_label1
   temp_label1 = Label(window, text=f"Temperature: {temp} K", font=("Arial", 16, "bold"), bg="lightgray")
   temp_label1.pack(fill="x")
-  global temp_label2 
-  temp_label2 = Label(window, text=f"Temperature: {temp} C", font=("Arial", 16, "bold"), bg="lightgray")
-  temp_label2.pack(fill="x")
+  global pressure_label
+  pressure_label = Label(window, text=f"Pressure: {temp} Pa", font=("Arial", 16, "bold"), bg="lightgray")
+  pressure_label.pack(fill="x")
+  global volume_label
+  volume_label = Label(window, text=f"Volume: {temp} meters cubed", font=("Arial", 16, "bold"), bg="lightgray")
+  volume_label.pack(fill="x")
 
   global canvas
   canvas = Canvas(window, bg="white", width=400, height=400)
@@ -36,9 +40,6 @@ def main():
   canvas.bind("<Up>", piston.up)
   canvas.bind("<Down>", piston.down)
   canvas.focus_set()
-
-  global volume
-  volume = canvas.width * piston.barrier / 160000
 
   window.update()
   global balls
@@ -61,7 +62,7 @@ def main():
   window.mainloop()
 
 def main_loop():
-  update(balls, temp_label1, temp_label2)
+  update()
   window.after(10, main_loop)
 
 def isColliding(ball1, ball2):
@@ -101,9 +102,10 @@ def isColliding(ball1, ball2):
       ball2.y += movey
 
 
-def update(balls, temp_label1, temp_label2):
-  temp_label1.config(text=f"Temperature: {round(calcTempPres(balls), 3)} K")
-  temp_label2.config(text=f"Temperature: {round(calcTempPres(balls)-273.15, 3)} C")
+def update():
+  temp_label1.config(text=f"Temperature: {round(calcTempPres(balls)[0], 3)} K, {round(calcTempPres(balls)[0]-273.15, 3)} C")
+  pressure_label.config(text=f"Pressure: {round(calcTempPres(balls)[1], 3)} Pa")
+  volume_label.config(text=f"Volume: {calcVolume()} meters cubed")
   for i, ball in enumerate(balls):
     ball.move(piston.barrier)
     for other in balls[i+1:]:
@@ -127,5 +129,8 @@ def calcTempPres(balls):
     mean_v_sq = sum_v_sq / len(balls)
     temperature = (MASS_NITROGEN * mean_v_sq) / (2 * K_BOLTZMANN)
     
-    return temperature
+    return temperature, temperature/calcVolume()
+  
+def calcVolume():
+  return round(canvas.winfo_width() * (400-piston.barrier) / 640000, 3)
 main()

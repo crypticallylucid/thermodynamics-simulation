@@ -10,7 +10,6 @@ class Piston:
         self.barrier = y + height
     
     def up(self, event):
-        print("Up arrow pressed!")
         if (self.y < 10):
             self.canvas.move(self.piston, 0, -self.y)
             self.y = 0
@@ -19,7 +18,7 @@ class Piston:
             self.canvas.move(self.piston, 0, -10)
             self.y -= 10
             self.barrier -= 10
-        print(self.barrier)
+            
         
     def down(self, event):
         if (self.y > 190):
@@ -30,4 +29,3 @@ class Piston:
             self.canvas.move(self.piston, 0, 10)
             self.y += 10
             self.barrier += 10
-        print(self.barrier)
