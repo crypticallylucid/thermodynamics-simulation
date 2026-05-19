@@ -9,7 +9,7 @@ class Ball:
     self.x = x
     self.y = y
 
-  def move(self):
+  def move(self, top):
     self.x += self.xvel
     self.y += self.yvel
 
@@ -23,8 +23,8 @@ class Ball:
         self.x = w - self.dia - 0.1
         self.xvel *= -1
 
-    if self.y <= 0:
-        self.y = 0.1
+    if self.y <= top:
+        self.y = top + 0.1
         self.yvel *= -1
     elif self.y + self.dia >= h:
         self.y = h - self.dia - 0.1
