@@ -3,53 +3,90 @@ from tkinter import *
 from tkinter import ttk
 from ball import *
 from piston import *
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 import random
 import time
 
 def main():
   global window
   window = Tk()
-  window.columnconfigure(0, weight=1)
-  window.rowconfigure(0, weight=1)
 
   global assume_label1 
   assume_label1 = Label(window, text="Assume 1px/frame = 255m/s", font=("Arial", 16, "bold"), bg="lightgray")
-  assume_label1.pack(fill="x",)
+  assume_label1.pack(anchor="n", fill="x",)
   global assume_label2 
   assume_label2 = Label(window, text="Assume all molecules are nitrogen", font=("Arial", 16, "bold"), bg="lightgray")
-  assume_label2.pack(fill="x")
+  assume_label2.pack(anchor="n", fill="x")
 
   temp = 0
-  volume = 0
+
   global temp_label1
   temp_label1 = Label(window, text=f"Temperature: {temp} K", font=("Arial", 16, "bold"), bg="lightgray")
-  temp_label1.pack(fill="x")
+  temp_label1.pack(anchor="n", fill="x")
   global pressure_label
   pressure_label = Label(window, text=f"Pressure: {temp} Pa", font=("Arial", 16, "bold"), bg="lightgray")
-  pressure_label.pack(fill="x")
+  pressure_label.pack(anchor="n", fill="x")
   global volume_label
-  volume_label = Label(window, text=f"Volume: {temp} meters cubed", font=("Arial", 16, "bold"), bg="lightgray")
-  volume_label.pack(fill="x")
+  volume_label = Label(window, text=f"Volume: {temp} m³", font=("Arial", 16, "bold"), bg="lightgray")
+  volume_label.pack(anchor="n", fill="x")
+
+  global mainframe
+  mainframe = Frame(window)
+  mainframe.pack(anchor="n", fill="both", expand=True, padx=10, pady=10)
+
+  mainframe.columnconfigure(0, weight=0, minsize=400)
+  mainframe.columnconfigure(1, weight=1)
+  mainframe.rowconfigure(0, weight=1)
 
   global canvas
-  canvas = Canvas(window, bg="white", width=400, height=400)
-  canvas.pack()
+  canvas = Canvas(mainframe, bg="white", width=400, height=400)
+  canvas.grid(row=0, column=0, sticky="n", padx=10, pady=10)
 
   global piston
-  piston = Piston(canvas, 0, 0, 400, 20, "blue")
+  piston = Piston(canvas, 0, 0, 410, 20, "blue")
   canvas.bind("<Up>", piston.up)
   canvas.bind("<Down>", piston.down)
   canvas.focus_set()
 
-  window.update()
   global balls
   balls = []
   used = [(0, 0)]
 
+  global temps, pressures, volumes
+  temps, pressures, volumes = [], [], []
+  
+  global figurept, axespt, lsrlpt, plotpt
+  figurept = Figure(figsize=(5, 4), dpi=100)
+  axespt = figurept.add_subplot(111)
+  axespt.set_xlabel("Temperature (K)")
+  axespt.set_ylabel("Pressure (Pa)")
+  axespt.set_title("Pressure vs Temperature")
+  lsrlpt, = axespt.plot([], [], color="blue", label="LSRL", marker="o", markersize=3)
+  plotpt = FigureCanvasTkAgg(figurept, master=mainframe)
+  plotpt.get_tk_widget().grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+
+  global figurepv, axespv, lsrlpv, plotpv
+  figurepv = Figure(figsize=(5, 4), dpi=100)
+  axespv = figurepv.add_subplot(111)
+  axespv.set_xlabel("Volume (m³)")
+  axespv.set_ylabel("Pressure (Pa)")
+  axespv.set_title("Volume vs Pressure")
+  lsrlpv, = axespv.plot([], [], color="red", label="LSRL", marker="s", markersize=3)
+  plotpv = FigureCanvasTkAgg(figurepv, master=mainframe)
+  plotpv.get_tk_widget().grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
+
+  global framecount
+  framecount = 0
+
+  window.update_idletasks() 
+  window.update()
+
   # create 50 particles
   while len(balls) < 50:
-    xpos = random.randint(1, canvas.winfo_width()-1)
-    ypos = random.randint(1, canvas.winfo_height()-1)
+    xpos = random.randint(1, 399)
+    ypos = random.randint(30, 399)
     xvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
     yvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
     for pos in used:
@@ -57,12 +94,17 @@ def main():
         balls.append(Ball(canvas, xpos, ypos, 10, xvel, yvel, "green"))
         used.append((xpos, ypos))
         break
-
+  
+  canvas.focus_set()
   main_loop()
   window.mainloop()
 
 def main_loop():
+  global framecount
   update()
+  if (framecount%10 == 0):
+    graph()
+  framecount += 1
   window.after(10, main_loop)
 
 def isColliding(ball1, ball2):
@@ -133,4 +175,22 @@ def calcTempPres(balls):
   
 def calcVolume():
   return round(canvas.winfo_width() * (400-piston.barrier) / 640000, 3)
+
+def graph():
+  temp, pressure = calcTempPres(balls)
+  volume = calcVolume()
+  temps.append(temp)
+  pressures.append(pressure)
+  volumes.append(volume)
+  lsrlpt.set_xdata(temps)
+  lsrlpt.set_ydata(pressures)
+  axespt.relim()
+  axespt.autoscale_view()
+  plotpt.draw_idle()
+
+  lsrlpv.set_xdata(volumes)
+  lsrlpv.set_ydata(pressures)
+  axespv.relim()
+  axespv.autoscale_view()
+  plotpv.draw_idle()
 main()
