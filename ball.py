@@ -1,3 +1,5 @@
+import math
+
 class Ball:
 
   def __init__(self, canvas, x, y, dia, xvel, yvel, color):
@@ -8,6 +10,35 @@ class Ball:
     self.yvel = yvel
     self.x = x
     self.y = y
+
+  def addHeat(self, n):
+    if (self.xvel < 0):
+        self.xvel -= pow(n, 1/2)
+    else:
+        self.xvel += pow(n, 1/2)
+    if (self.yvel < 0):
+        self.yvel -= pow(n, 1/2)
+    else:
+        self.yvel += pow(n, 1/2)
+
+  def removeHeat(self, n):
+    if (self.xvel < 0):
+        self.xvel += pow(n, 1/2)
+    else:
+        self.xvel -= pow(n, 1/2)
+    if (self.yvel < 0):
+        self.yvel += pow(n, 1/2)
+    else:
+        self.yvel -= pow(n, 1/2)
+
+  def scaleTemperature(self, factor):
+    if factor <= 0:
+      self.xvel = 0
+      self.yvel = 0
+      return
+    scale = math.sqrt(factor)
+    self.xvel *= scale
+    self.yvel *= scale
 
   def move(self, top):
     self.x += self.xvel

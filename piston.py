@@ -1,4 +1,6 @@
 class Piston:
+
+    pistonlimit = 370
     
     def __init__(self, canvas, x, y, width, height, color):
         self.canvas = canvas
@@ -18,14 +20,16 @@ class Piston:
             self.canvas.move(self.piston, 0, -10)
             self.y -= 10
             self.barrier -= 10
+        self.canvas.focus_set()
             
         
     def down(self, event):
-        if (self.y > 190):
-            self.canvas.move(self.piston, 0, 200-self.y)
-            self.y = 200
+        if (self.y >= self.pistonlimit-10):
+            self.canvas.move(self.piston, 0, self.pistonlimit-self.y)
+            self.y = self.pistonlimit
             self.barrier = self.y + self.height
         else:
             self.canvas.move(self.piston, 0, 10)
             self.y += 10
             self.barrier += 10
+        self.canvas.focus_set()

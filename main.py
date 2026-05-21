@@ -13,13 +13,6 @@ def main():
   global window
   window = Tk()
 
-  global assume_label1 
-  assume_label1 = Label(window, text="Assume 1px/frame = 255m/s", font=("Arial", 16, "bold"), bg="lightgray")
-  assume_label1.pack(anchor="n", fill="x",)
-  global assume_label2 
-  assume_label2 = Label(window, text="Assume all molecules are nitrogen", font=("Arial", 16, "bold"), bg="lightgray")
-  assume_label2.pack(anchor="n", fill="x")
-
   temp = 0
 
   global temp_label1
@@ -36,7 +29,7 @@ def main():
   mainframe = Frame(window)
   mainframe.pack(anchor="n", fill="both", expand=True, padx=10, pady=10)
 
-  mainframe.columnconfigure(0, weight=0, minsize=400)
+  mainframe.columnconfigure(0, weight=0)
   mainframe.columnconfigure(1, weight=1)
   mainframe.rowconfigure(0, weight=1)
 
@@ -58,7 +51,7 @@ def main():
   temps, pressures, volumes = [], [], []
   
   global figurept, axespt, lsrlpt, plotpt
-  figurept = Figure(figsize=(5, 4), dpi=100)
+  figurept = Figure(figsize=(3, 2), dpi=100)
   axespt = figurept.add_subplot(111)
   axespt.set_xlabel("Temperature (K)")
   axespt.set_ylabel("Pressure (Pa)")
@@ -68,7 +61,7 @@ def main():
   plotpt.get_tk_widget().grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
 
   global figurepv, axespv, lsrlpv, plotpv
-  figurepv = Figure(figsize=(5, 4), dpi=100)
+  figurepv = Figure(figsize=(3, 2), dpi=100)
   axespv = figurepv.add_subplot(111)
   axespv.set_xlabel("Volume (m³)")
   axespv.set_ylabel("Pressure (Pa)")
@@ -76,6 +69,37 @@ def main():
   lsrlpv, = axespv.plot([], [], color="red", label="LSRL", marker="s", markersize=3)
   plotpv = FigureCanvasTkAgg(figurepv, master=mainframe)
   plotpv.get_tk_widget().grid(row=0, column=2, sticky="nsew", padx=10, pady=10)
+
+  global buttonframe
+  buttonframe = Frame(mainframe)
+  buttonframe.grid(row=1, column=0)
+
+  global pistonbuttonupisothermic
+  pistonbuttonupisothermic = Button(buttonframe, text="Piston Up Isothermic", width=20, height=1, padx=10, pady=10, command=lambda: piston.up(""))
+  pistonbuttonupisothermic.grid(row=0, column=0, padx=10, pady=10)
+
+  global pistonbuttondownisothermic
+  pistonbuttondownisothermic = Button(buttonframe, text="Piston Down Isothermic", width=20, height=1, padx=10, pady=10, command=lambda: piston.down(""))
+  pistonbuttondownisothermic.grid(row=0, column=1, padx=10, pady=10)
+
+  global pistonbuttonupisobaric
+  pistonbuttonupisobaric = Button(buttonframe, text="Piston Up Isobaric", width=20, height=1, padx=10, pady=10, command=lambda: upIsobaric())
+  pistonbuttonupisobaric.grid(row=2, column=0, padx=10, pady=10)
+
+  global pistonbuttondownisobaric
+  pistonbuttondownisobaric = Button(buttonframe, text="Piston Down Isobaric", width=20, height=1, padx=10, pady=10, command=lambda: downIsobaric())
+  pistonbuttondownisobaric.grid(row=2, column=1, padx=10, pady=10)
+
+  global heatscaler
+  heatscaler = 1.10
+
+  global addheatbutton
+  addheatbutton = Button(buttonframe, text="Add heat Isovolumetric", width=20, height=1, padx=10, pady=10, command=lambda: scaleTemperature(heatscaler))
+  addheatbutton.grid(row=1, column=0, padx=10, pady=10)
+
+  global lessheatbutton
+  lessheatbutton = Button(buttonframe, text="Remove heat Isovolumetric", width=20, height=1, padx=10, pady=10, command=lambda: scaleTemperature(1/heatscaler))
+  lessheatbutton.grid(row=1, column=1, padx=10, pady=10)
 
   global framecount
   framecount = 0
@@ -106,6 +130,22 @@ def main_loop():
     graph()
   framecount += 1
   window.after(10, main_loop)
+
+def upIsobaric():
+  pre = calcVolume()
+  piston.up("")
+  fin = calcVolume()
+  if pre <= 0 or fin <= 0:
+    return
+  scaleTemperature(fin / pre)
+
+def downIsobaric():
+  pre = calcVolume()
+  piston.down("")
+  fin = calcVolume()
+  if pre <= 0 or fin <= 0:
+    return
+  scaleTemperature(fin / pre)
 
 def isColliding(ball1, ball2):
   x1, y1 =  ball1.x, ball1.y
@@ -143,11 +183,25 @@ def isColliding(ball1, ball2):
       ball2.x += movex
       ball2.y += movey
 
+def addHeatAll(n):
+  global balls
+  for ball in balls:
+    ball.addHeat(n)
+
+def removeHeatAll(n):
+  global balls
+  for ball in balls:
+    ball.removeHeat(n)
+
+def scaleTemperature(factor):
+  global balls
+  for ball in balls:
+    ball.scaleTemperature(factor)
 
 def update():
   temp_label1.config(text=f"Temperature: {round(calcTempPres(balls)[0], 3)} K, {round(calcTempPres(balls)[0]-273.15, 3)} C")
   pressure_label.config(text=f"Pressure: {round(calcTempPres(balls)[1], 3)} Pa")
-  volume_label.config(text=f"Volume: {calcVolume()} meters cubed")
+  volume_label.config(text=f"Volume: {round(calcVolume(), 3)} meters cubed")
   for i, ball in enumerate(balls):
     ball.move(piston.barrier)
     for other in balls[i+1:]:
@@ -169,16 +223,17 @@ def calcTempPres(balls):
         sum_v_sq += (vx_mps**2 + vy_mps**2)
     
     mean_v_sq = sum_v_sq / len(balls)
+    # print(mean_v_sq)
     temperature = (MASS_NITROGEN * mean_v_sq) / (2 * K_BOLTZMANN)
     
     return temperature, temperature/calcVolume()
   
 def calcVolume():
-  return round(canvas.winfo_width() * (400-piston.barrier) / 640000, 3)
+  return canvas.winfo_width() * (400-piston.barrier) / 640000
 
 def graph():
   temp, pressure = calcTempPres(balls)
-  volume = calcVolume()
+  volume = round(calcVolume(), 3)
   temps.append(temp)
   pressures.append(pressure)
   volumes.append(volume)
