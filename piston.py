@@ -1,6 +1,6 @@
 class Piston:
 
-    pistonlimit = 370
+    pistonlimit = 360
     
     def __init__(self, canvas, x, y, width, height, color):
         self.canvas = canvas

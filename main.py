@@ -31,7 +31,10 @@ def main():
 
   mainframe.columnconfigure(0, weight=0)
   mainframe.columnconfigure(1, weight=1)
+  mainframe.columnconfigure(2, weight=1)
   mainframe.rowconfigure(0, weight=1)
+  mainframe.rowconfigure(1, weight=1)
+  mainframe.rowconfigure(2, weight=1)
 
   global canvas
   canvas = Canvas(mainframe, bg="white", width=400, height=400)
@@ -74,6 +77,11 @@ def main():
   buttonframe = Frame(mainframe)
   buttonframe.grid(row=1, column=0)
 
+  global graphbuttonframe
+  graphbuttonframe = Frame(mainframe)
+  graphbuttonframe.grid(row=1, column=1, columnspan=2, sticky="ew")
+  graphbuttonframe.columnconfigure(0, weight=1)
+
   global pistonbuttonupisothermic
   pistonbuttonupisothermic = Button(buttonframe, text="Piston Up Isothermic", width=20, height=1, padx=10, pady=10, command=lambda: piston.up(""))
   pistonbuttonupisothermic.grid(row=0, column=0, padx=10, pady=10)
@@ -100,6 +108,10 @@ def main():
   global lessheatbutton
   lessheatbutton = Button(buttonframe, text="Remove heat Isovolumetric", width=20, height=1, padx=10, pady=10, command=lambda: scaleTemperature(1/heatscaler))
   lessheatbutton.grid(row=1, column=1, padx=10, pady=10)
+
+  global resetbutton
+  resetbutton = Button(graphbuttonframe, text="Reset Graph", width=20, height=1, padx=10, pady=10, command=lambda: reset())
+  resetbutton.grid(row=0, column=0, padx=10, pady=10)
 
   global framecount
   framecount = 0
@@ -130,6 +142,10 @@ def main_loop():
     graph()
   framecount += 1
   window.after(10, main_loop)
+
+def reset():
+  global temps, pressures, volumes
+  temps, pressures, volumes = [], [], []
 
 def upIsobaric():
   pre = calcVolume()
