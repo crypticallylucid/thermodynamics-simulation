@@ -33,3 +33,8 @@ class Piston:
             self.y += 10
             self.barrier += 10
         self.canvas.focus_set()
+
+    def reset(self):
+        self.canvas.move(self.piston, 0, -self.y)
+        self.y = 0
+        self.barrier = self.height

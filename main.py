@@ -77,11 +77,6 @@ def main():
   buttonframe = Frame(mainframe)
   buttonframe.grid(row=1, column=0)
 
-  global graphbuttonframe
-  graphbuttonframe = Frame(mainframe)
-  graphbuttonframe.grid(row=1, column=1, columnspan=2, sticky="ew")
-  graphbuttonframe.columnconfigure(0, weight=1)
-
   global pistonbuttonupisothermic
   pistonbuttonupisothermic = Button(buttonframe, text="Piston Up Isothermic", width=20, height=1, padx=10, pady=10, command=lambda: piston.up(""))
   pistonbuttonupisothermic.grid(row=0, column=0, padx=10, pady=10)
@@ -109,9 +104,13 @@ def main():
   lessheatbutton = Button(buttonframe, text="Remove heat Isovolumetric", width=20, height=1, padx=10, pady=10, command=lambda: scaleTemperature(1/heatscaler))
   lessheatbutton.grid(row=1, column=1, padx=10, pady=10)
 
-  global resetbutton
-  resetbutton = Button(graphbuttonframe, text="Reset Graph", width=20, height=1, padx=10, pady=10, command=lambda: reset())
-  resetbutton.grid(row=0, column=0, padx=10, pady=10)
+  global resetgraphbutton
+  resetgraphbutton = Button(buttonframe, text="Reset Graphs", width=20, height=1, padx=10, pady=10, command=lambda: resetGraph())
+  resetgraphbutton.grid(row=3, column=0, padx=10, pady=10)
+
+  global fullresetbutton
+  fullresetbutton = Button(buttonframe, text="Reset Simulation", width=20, height=1, padx=10, pady=10, command=lambda: fullReset())
+  fullresetbutton.grid(row=3, column=1, padx=10, pady=10)
 
   global framecount
   framecount = 0
@@ -143,9 +142,24 @@ def main_loop():
   framecount += 1
   window.after(10, main_loop)
 
-def reset():
+def resetGraph():
   global temps, pressures, volumes
   temps, pressures, volumes = [], [], []
+  lsrlpt.set_xdata(temps)
+  lsrlpt.set_ydata(pressures)
+  plotpt.draw_idle()
+
+  lsrlpv.set_xdata(volumes)
+  lsrlpv.set_ydata(pressures)
+  plotpv.draw_idle()
+
+def fullReset():
+  global balls, piston, temps, pressures, volumes
+  for ball in balls:
+    ball.xvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
+    ball.yvel = random.choice([random.uniform(1, 1.3), random.uniform(-1.3, -1)])
+  piston.reset()
+  resetGraph()
 
 def upIsobaric():
   pre = calcVolume()

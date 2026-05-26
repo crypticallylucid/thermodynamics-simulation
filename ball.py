@@ -1,5 +1,3 @@
-import math
-
 class Ball:
 
   def __init__(self, canvas, x, y, dia, xvel, yvel, color):
@@ -36,7 +34,7 @@ class Ball:
       self.xvel = 0
       self.yvel = 0
       return
-    scale = math.sqrt(factor)
+    scale = pow(factor, 1/2)
     self.xvel *= scale
     self.yvel *= scale
 
