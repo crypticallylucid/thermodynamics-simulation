@@ -44,11 +44,11 @@ This controls the main simulation. It controls the following 4 things:
 4. **Buttons:** Creates the functionality for all the buttons to interact with the simulation
 
 ### `ball.py`
-This is the ball object. It is the foundation for each individual particle handles the following 2 things:
+This is the ball object. It is the foundation for each individual particle and handles the following 2 things:
 1. **Moving:** Redraws itself based on its xvelocity and yvelocity, as well as ensuring that the particles stay within the bounding box.
 2. **Temperature Scaling:** Adjusts the ball's velocity based on either a multiplicative scalar or an additive scalar, allowing for the simulation to increase the velocity of each particle, increasing the temperature.
 
 ### `piston.py`
-This is the piston object. It creates the piston that moves up and down, constraining the particles. It controlls the following 2 things:
+This is the piston object. It creates the piston that moves up and down, constraining the particles. It controls the following 2 things:
 1. **Moving:** Contains event functions to move the piston up and down.
 2. **Collision:** Ensures that particles are moved if they were in the path of the piston moving and ensures that particles correctly bounce off the bottom of the piston.
