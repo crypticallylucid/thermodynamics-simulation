@@ -37,10 +37,11 @@ https://github.com/user-attachments/assets/75018646-fb78-493e-9c61-0da5e24cef24
 
 ## Codebase Overview
 ### `main.py`
-This controls the main simulation. It controls the following 2 things:
+This controls the main simulation. It controls the following 4 things:
 1. **Display Loop:** Manages the tkinter canvas, keeping the simulation running.
 2. **Calculations and Graphing:** Calculates and graphs the temperatures, pressures, and volumes at each point on the graph.
 3. **Collision:** Ensures that particles properly collide with each other, simulating perfectly elastic collisions.
+4. **Buttons:** Creates the functionality for all the buttons to interact with the simualation
 
 ### `ball.py`
 This is the ball object. It is the foundation for each individual particle handles the following 2 things:
