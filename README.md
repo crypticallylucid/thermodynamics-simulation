@@ -31,6 +31,10 @@ export DISPLAY=:1
 python main.py
 ```
 
+## Demo
+https://github.com/user-attachments/assets/75018646-fb78-493e-9c61-0da5e24cef24
+
+
 ## Codebase Overview
 ### `main.py`
 This controls the main simulation. It controls the following 2 things:
